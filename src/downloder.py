@@ -14,7 +14,7 @@ class BaseDownloader(ABC):
         self.output_dir = pathlib.Path(path)
         self.data = Config().get_path()
 
-    def _get_progress_hook(self, progress, task_id):
+    def _get_progress_hook(self, progress, task_id: int, status_message: str):
         def hook(d):
             if d['status'] == 'downloading':
                 downloaded = d.get('downloaded_bytes', 0)
@@ -24,7 +24,7 @@ class BaseDownloader(ABC):
                     progress.update(task_id, total=total, completed=downloaded)
 
             elif d['status'] == 'finished':
-                progress.update(task_id, description='[yellow]Конвертация в MP3...')
+                progress.update(task_id, description=f'[yellow]{status_message}[/yellow]')
 
         return hook
 
