@@ -1,3 +1,4 @@
+import pathlib
 from typing import Annotated
 
 import typer
@@ -45,6 +46,36 @@ def download_video(
 ):
     """Downloads video from the specified YouTube URL."""
     downloader_video.download(url)
+
+
+@download_app.command('batch', help='Download multiple audio or video URLs from a text file.')
+def download_batch(
+    file_path: Annotated[str, typer.Argument(help='Path to the .txt file with URLs')],
+    only_audio: Annotated[
+        bool, typer.Option('--audio', '-a', help='Download as audio (MP3) instead of video.')
+    ] = False,
+):
+    """Downloads a batch of URLs listed in a text file."""
+    path = pathlib.Path(file_path)
+    if not path.exists():
+        Status.error(f'File not found: {file_path}')
+
+    lines = path.read_text(encoding='utf-8').splitlines()
+    urls = [line.strip() for line in lines if line.strip() and not line.strip().startswith('#')]
+
+    if not urls:
+        Status.error('The file does not contain any valid URLs')
+
+    Status.success(f'Found {len(urls)} URLs to download.')
+
+    downloader = downloader_audio if only_audio else downloader_video
+
+    for index, url in enumerate(urls, 1):
+        console.print(f'\n[cyan]({index}/{len(urls)}) Processing:[/cyan] {url}')
+        try:
+            downloader.download(url)
+        except Exception as e:
+            Status.error(f'Failed to download {url}: {e}')
 
 
 @config_app.command(
