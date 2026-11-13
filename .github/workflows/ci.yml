@@ -19,5 +19,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras
 
+      - name: Run ruff fix:
+        run: uv run check --fix .
+
       - name: Run Ruff
         run: uv run ruff check .
