@@ -6,28 +6,52 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
+from rich.panel import Panel
 
 console = Console()
 
-
-class Status:
-    @staticmethod
-    def success(text: str) -> None:
-        """Prints a success message in green with a '+' prefix."""
+class UI:
+    def success(self, text: str) -> None:
         console.print(f'[green][+] {text}[/green]')
 
-    @staticmethod
-    def error(text: str) -> None:
-        """Prints an error message in red with a '-' prefix."""
+    def warning(self, text: str) -> None:
+        console.print(f'[yellow][!] {text}[/yellow]')
+
+    def error(self, text: str) -> None:
         console.print(f'[red][-] {text}[/red]')
 
-    @staticmethod
-    def create_progress() -> Progress:
-        """
-        Creates and returns a configured Rich Progress instance
+    def info(self, text: str) -> None:
+        console.print(f'[cyan][!] {text}[/cyan]')
 
-        with a spinner, description, progress bar, percentage, and remaining time.
-        """
+    def log(self, text: str) -> None:
+        console.log(text)
+
+    def print_panel(self, content: str, title: str):
+        panel = Panel(
+            content,
+            title=title,
+            title_align='center',
+            border_style='green',
+            expand=False
+        )
+
+        console.print(panel)
+
+    def progress_hook(self, progress: Progress, task_id: int, status_message: str):
+        def hook(d):
+            if d['status'] == 'downloading':
+                downloaded = d.get('downloaded_bytes', 0)
+                total = d.get('total_bytes') or d.get('total_bytes_estimate') or 0
+
+                if total > 0:
+                    progress.update(task_id, total=total, completed=downloaded)
+
+            elif d['status'] == 'finished':
+                progress.update(task_id, description=f'[yellow]{status_message}[/yellow]')
+
+        return hook
+    
+    def create_progress(self) -> Progress:
         return Progress(
             SpinnerColumn(),
             TextColumn('[progress.description]{task.description}'),
