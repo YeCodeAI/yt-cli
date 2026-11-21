@@ -21,7 +21,7 @@ class ConfigManager:
         if not self.CONFIG_PATH.exists():
             self.config['Path'] = {
                 'download_dir': str(pathlib.Path('~/YT-CLI Download').expanduser()),
-                'ffmpeg_path': str(self.home / 'ffmpeg')
+                'yt_dlp_and_ffmpeg_path': str(self.home / 'yt-dlp and ffmpeg')
             }
 
             with open(self.CONFIG_PATH, 'w', encoding='utf-8') as configfile:
@@ -33,10 +33,10 @@ class ConfigManager:
 
         return ConfigResult(
             download_dir=self.config['Path']['download_dir'],
-            ffmpeg_dir=self.config['Path']['ffmpeg_path']
+            ffmpeg_dir=self.config['Path']['yt_dlp_and_ffmpeg_path']
         )
     
-    def update_config(self, new_path_download_dir: str | None = None, new_path_ffmpeg: str | None = None):
+    def update_config(self, new_path_download_dir: str | None = None, new_path_yt_dlp_and_ffmpeg_path: str | None = None):
         self._init_config()
         self.config.read(self.CONFIG_PATH)
 
@@ -44,9 +44,9 @@ class ConfigManager:
             pathlib.Path(new_path_download_dir).mkdir(parents=True, exist_ok=True)
             self.config['Path']['download_dir'] = str(new_path_download_dir)
 
-        if new_path_ffmpeg is not None:
-            pathlib.Path(new_path_ffmpeg).mkdir(parents=True, exist_ok=True)
-            self.config['Path']['ffmpeg_path'] = str(new_path_ffmpeg)
+        if new_path_yt_dlp_and_ffmpeg_path is not None:
+            pathlib.Path(new_path_yt_dlp_and_ffmpeg_path).mkdir(parents=True, exist_ok=True)
+            self.config['Path']['yt_dlp_and_ffmpeg_path'] = str(new_path_yt_dlp_and_ffmpeg_path)
 
         with open(self.CONFIG_PATH, 'w', encoding='utf-8') as f:
             self.config.write(f)
