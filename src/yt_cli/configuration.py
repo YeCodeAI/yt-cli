@@ -39,18 +39,22 @@ class Config:
     def update_config(self, download_dir: str, ffmpeg_dir: str) -> ConfigResult:
         self._init_config()
         self.config.read(self.CONFIG_PATH)
-        
-        if download_dir and ffmpeg_dir:
-            Path(download_dir).mkdir(parents=True, exist_ok=True)
-            Path(ffmpeg_dir).mkdir(parents=True, exist_ok=True)
+        updated = False
 
-            self.config['Path']['download_dir'] = download_dir
-            self.config['Path']['ffmpeg_dir'] = ffmpeg_dir
+        if download_dir:
+            dl_path = Path(download_dir).expanduser().resolve()
+            dl_path.mkdir(parents=True, exist_ok=True)
+            self.config['Path']['download_dir'] = str(dl_path)
+            updated = True
 
+        if ffmpeg_dir:
+            ff_path = Path(ffmpeg_dir).expanduser().resolve()
+            ff_path.mkdir(parents=True, exist_ok=True)
+            self.config['Path']['ffmpeg_dir'] = str(ff_path)
+            updated = True
+
+        if updated:
             with open(self.CONFIG_PATH, 'w', encoding='utf-8') as configfile:
                 self.config.write(configfile)
 
-            return ConfigResult(
-                download_dir=self.config['Path']['download_dir'],
-                ffmpeg_dir=self.config['Path']['ffmpeg_dir']
-            )
+        return self.read_config()
